@@ -35,3 +35,5 @@ http://127.0.0.1:5000
 - Sélection de matière (maths, info, IA, réseaux...)
 - Historique de conversation
 - Interface moderne dark mode
+<img width="1920" height="1030" alt="EduBot — Assistant IA - Google Chrome 30_05_2026 03_15_27" src="https://github.com/user-attachments/assets/f833d19a-38c1-4619-84c1-3ce3948007da" />
+<img width="1920" height="1030" alt="EduBot — Assistant IA - Google Chrome 30_05_2026 03_21_47" src="https://github.com/user-attachments/assets/78ec6ee9-498f-47a2-ba91-cc04d71a83f0" />
