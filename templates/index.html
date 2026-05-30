@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduBot — Assistant IA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --bg3: #1a1a24;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.12);
+      --accent: #6c63ff;
+      --accent2: #a78bfa;
+      --accent-glow: rgba(108,99,255,0.25);
+      --text: #f0f0f8;
+      --text2: #8888aa;
+      --text3: #555570;
+      --user-bg: #6c63ff;
+      --bot-bg: #1a1a24;
+      --green: #34d399;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(108,99,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,99,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Header */
+    header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      height: 60px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(20px);
+      flex-shrink: 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .logo span { color: var(--accent2); }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--text2);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 100px;
+    }
+
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .subject-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .subject-selector label {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    select {
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    select:focus { border-color: var(--accent); }
+
+    /* Main layout */
+    .layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      border-right: 1px solid var(--border);
+      background: var(--bg2);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      padding: 20px 16px;
+      gap: 24px;
+    }
+
+    .sidebar-section h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 12px;
+    }
+
+    .quick-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 6px;
+    }
+
+    .quick-btn:hover {
+      background: var(--bg3);
+      border-color: var(--border2);
+      color: var(--text);
+      transform: translateX(3px);
+    }
+
+    .quick-btn .qicon { margin-right: 8px; }
+
+    .model-info {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .model-info .m-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text3);
+      margin-bottom: 6px;
+    }
+
+    .model-info .m-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent2);
+    }
+
+    .model-info .m-badge {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 10px;
+      background: rgba(108,99,255,0.15);
+      color: var(--accent2);
+      padding: 3px 8px;
+      border-radius: 100px;
+      border: 1px solid rgba(108,99,255,0.3);
+    }
+
+    /* Chat area */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      scroll-behavior: smooth;
+    }
+
+    #messages::-webkit-scrollbar { width: 4px; }
+    #messages::-webkit-scrollbar-track { background: transparent; }
+    #messages::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+
+    /* Welcome screen */
+    .welcome {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 16px;
+      padding: 40px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .welcome-icon {
+      font-size: 48px;
+      filter: drop-shadow(0 0 20px var(--accent-glow));
+    }
+
+    .welcome h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--text) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .welcome p {
+      font-size: 15px;
+      color: var(--text2);
+      max-width: 380px;
+      line-height: 1.6;
+    }
+
+    .welcome-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .chip {
+      font-size: 13px;
+      padding: 8px 16px;
+      border-radius: 100px;
+      border: 1px solid var(--border2);
+      color: var(--text2);
+      background: var(--bg3);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip:hover {
+      border-color: var(--accent);
+      color: var(--accent2);
+      background: rgba(108,99,255,0.1);
+    }
+
+    /* Messages */
+    .msg {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      max-width: 75%;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .msg.bot .avatar {
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .msg.user .avatar {
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+    }
+
+    .bubble {
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 100%;
+    }
+
+    .msg.bot .bubble {
+      background: var(--bot-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px 16px 16px 16px;
+      color: var(--text);
+    }
+
+    .msg.user .bubble {
+      background: var(--user-bg);
+      border-radius: 16px 4px 16px 16px;
+      color: white;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .msg-time {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 5px;
+      padding: 0 4px;
+    }
+
+    .msg.user .msg-time { text-align: right; }
+
+    /* Typing indicator */
+    .typing-bubble {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      padding: 16px 18px;
+    }
+
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent2);
+      animation: bounce 1.2s infinite;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.15s; }
+    .dot:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+      30% { transform: translateY(-7px); opacity: 1; }
+    }
+
+    /* Code blocks in responses */
+    pre {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 8px 0;
+      overflow-x: auto;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+    }
+
+    code { font-family: 'Courier New', monospace; font-size: 13px; color: var(--accent2); }
+
+    /* Input area */
+    .input-area {
+      padding: 16px 32px 24px;
+      background: rgba(10,10,15,0.9);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      flex-shrink: 0;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 16px;
+      padding: 10px 10px 10px 18px;
+      transition: border-color 0.2s;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      resize: none;
+      max-height: 130px;
+      min-height: 24px;
+    }
+
+    textarea::placeholder { color: var(--text3); }
+
+    .send-btn {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: var(--accent);
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover { background: #8075ff; transform: scale(1.05); }
+    .send-btn:active { transform: scale(0.95); }
+    .send-btn:disabled { background: var(--bg3); color: var(--text3); cursor: not-allowed; transform: none; }
+
+    .input-hint {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 10px;
+    }
+
+    strong { font-weight: 500; color: var(--accent2); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🎓</div>
+    Edu<span>Bot</span>
+  </div>
+
+  <div class="subject-selector">
+    <label>Matière :</label>
+    <select id="subjectSelect">
+      <option value="generale">Générale</option>
+      <option value="maths">Mathématiques</option>
+      <option value="physique">Physique</option>
+      <option value="info">Informatique</option>
+      <option value="elec">Électronique</option>
+      <option value="mecanique">Mécanique</option>
+      <option value="signal">Traitement du signal</option>
+      <option value="ia">Intelligence artificielle</option>
+      <option value="reseaux">Réseaux</option>
+    </select>
+  </div>
+
+  <div class="status-pill">
+    <div class="status-dot"></div>
+    Llama 3.2 · Local
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <h3>Questions rapides</h3>
+      <button class="quick-btn" onclick="usePrompt('Explique-moi ce concept simplement')"><span class="qicon">💡</span>Expliquer</button>
+      <button class="quick-btn" onclick="usePrompt('Fais un résumé de ce cours')"><span class="qicon">📝</span>Résumer</button>
+      <button class="quick-btn" onclick="usePrompt('Donne-moi un exemple concret')"><span class="qicon">🔍</span>Exemple</button>
+      <button class="quick-btn" onclick="usePrompt('Crée un exercice sur ce sujet')"><span class="qicon">✏️</span>Exercice</button>
+      <button class="quick-btn" onclick="usePrompt('Quelles sont les formules importantes ?')"><span class="qicon">📐</span>Formules</button>
+      <button class="quick-btn" onclick="viderChat()"><span class="qicon">🗑️</span>Vider le chat</button>
+    </div>
+
+    <div class="model-info">
+      <div class="m-label">Modèle actif</div>
+      <div class="m-name">Llama 3.2</div>
+      <div class="m-badge">100% Local · Ollama</div>
+    </div>
+  </aside>
+
+  <div class="chat-area">
+    <div id="messages">
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">🤖</div>
+        <h2>Bonjour, je suis EduBot !</h2>
+        <p>Ton assistant IA pour comprendre tes cours d'ingénieur. Pose-moi n'importe quelle question.</p>
+        <div class="welcome-chips">
+          <span class="chip" onclick="usePrompt('C\'est quoi un algorithme ?')">C'est quoi un algorithme ?</span>
+          <span class="chip" onclick="usePrompt('Explique la transformée de Fourier')">Transformée de Fourier</span>
+          <span class="chip" onclick="usePrompt('Résume le principe de la POO')">POO en Python</span>
+          <span class="chip" onclick="usePrompt('C\'est quoi un réseau de neurones ?')">Réseau de neurones</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrapper">
+        <textarea id="msgInput" placeholder="Pose ta question sur le cours..." rows="1"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="envoyer()">➤</button>
+      </div>
+      <div class="input-hint">Entrée pour envoyer · Shift+Entrée pour nouvelle ligne</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SYSTEM_PROMPTS = {
+    generale: "Tu es EduBot, un assistant pedagogique pour etudiants ingenieurs. Reponds en francais, clairement avec des exemples.",
+    maths: "Tu es EduBot, specialiste en mathematiques pour ingenieurs. Explique les concepts avec rigueur, donne des demonstrations et exemples numeriques. Reponds en francais.",
+    physique: "Tu es EduBot, specialiste en physique pour ingenieurs. Utilise des exemples concrets et des lois physiques. Reponds en francais.",
+    info: "Tu es EduBot, specialiste en informatique et programmation. Fournis du code exemple quand c'est utile. Reponds en francais.",
+    elec: "Tu es EduBot, specialiste en electronique. Explique les circuits, composants et lois electriques. Reponds en francais.",
+    mecanique: "Tu es EduBot, specialiste en mecanique. Explique avec des schemas et formules. Reponds en francais.",
+    signal: "Tu es EduBot, specialiste en traitement du signal. Explique transformees, filtres et convolution. Reponds en francais.",
+    ia: "Tu es EduBot, specialiste en intelligence artificielle et machine learning. Explique les modeles, algorithmes et maths derriere. Reponds en francais.",
+    reseaux: "Tu es EduBot, specialiste en reseaux informatiques. Explique protocoles, architectures et securite. Reponds en francais."
+  };
+
+  let historique = [];
+  let loading = false;
+
+  function now() {
+    return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatText(t) {
+    return t
+      .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+  }
+
+  function addMsg(role, text) {
+    const welcome = document.getElementById('welcome');
+    if (welcome) welcome.remove();
+
+    const msgs = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = `msg ${role}`;
+    div.innerHTML = `
+      <div class="avatar">${role === 'bot' ? '🤖' : '👤'}</div>
+      <div>
+        <div class="bubble">${formatText(text)}</div>
+        <div class="msg-time">${now()}</div>
+      </div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
+  }
+
+  function showTyping() {
+    const welcome = document.getElementById('welcome');
+    if (welcome) welcome.remove();
+    const msgs = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'msg bot';
+    div.id = 'typing';
+    div.innerHTML = `
+      <div class="avatar">🤖</div>
+      <div class="bubble typing-bubble">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  async function envoyer() {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text || loading) return;
+
+    loading = true;
+    document.getElementById('sendBtn').disabled = true;
+    input.value = '';
+    input.style.height = 'auto';
+
+    addMsg('user', text);
+    historique.push({ role: 'user', content: text });
+    showTyping();
+
+    const subject = document.getElementById('subjectSelect').value;
+    const systemPrompt = SYSTEM_PROMPTS[subject] || SYSTEM_PROMPTS.generale;
+
+    try {
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, system: systemPrompt })
+      });
+
+      const data = await res.json();
+      document.getElementById('typing')?.remove();
+      addMsg('bot', data.reponse);
+      historique.push({ role: 'assistant', content: data.reponse });
+    } catch (e) {
+      document.getElementById('typing')?.remove();
+      addMsg('bot', '❌ Erreur de connexion. Vérifie que Ollama tourne bien.');
+    }
+
+    loading = false;
+    document.getElementById('sendBtn').disabled = false;
+    input.focus();
+  }
+
+  function usePrompt(text) {
+    document.getElementById('msgInput').value = text;
+    document.getElementById('msgInput').focus();
+  }
+
+  function viderChat() {
+    historique = [];
+    const msgs = document.getElementById('messages');
+    msgs.innerHTML = `
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">🤖</div>
+        <h2>Bonjour, je suis EduBot !</h2>
+        <p>Ton assistant IA pour comprendre tes cours d'ingénieur.</p>
+        <div class="welcome-chips">
+          <span class="chip" onclick="usePrompt('C\\'est quoi un algorithme ?')">C'est quoi un algorithme ?</span>
+          <span class="chip" onclick="usePrompt('Explique la transformée de Fourier')">Transformée de Fourier</span>
+          <span class="chip" onclick="usePrompt('Résume le principe de la POO')">POO en Python</span>
+        </div>
+      </div>`;
+  }
+
+  const input = document.getElementById('msgInput');
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); envoyer(); }
+  });
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 130) + 'px';
+  });
+</script>
+</body>
+</html>
