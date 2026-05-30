@@ -4,7 +4,7 @@
 EduBot est un assistant pédagogique intelligent qui répond aux questions 
 de cours des étudiants en école d'ingénieurs, propulsé par Llama 3.2.
 
-## Étudiants
+## Étudiant
 - Yosr Ouali
 
 ## Technologies utilisées
